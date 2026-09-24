@@ -6,7 +6,8 @@ services, blog posts, help articles, an FAQ, legal pages, and a handful of
 deliberately awkward pages (orphans, missing metadata, noindex).
 
 No JavaScript is needed to read any content. The only scripts are the FlowSearch
-widget and results scripts, which are left as placeholders until onboarding is done.
+widget (every page) and results script (`/search/` only), loaded from
+www.flowsearch.io. Live site: https://josis-fun-test-website.netlify.app
 
 ## Build
 
@@ -19,22 +20,21 @@ The build prints the page count and the list of edge-case pages.
 
 ## Deploy on Netlify
 
-`netlify.toml` already sets the build command (`python3 build.py`) and publish
-directory (`dist`). Connect the GitHub repo to a new Netlify site and it builds
-on every push. `SITE_URL` is picked up from Netlify's built-in `URL` variable,
-so the sitemap and canonical links point at the real deploy.
+The Netlify site `josis-fun-test-website` is linked to this repo and builds on
+every push to `main` using the command and publish directory in `netlify.toml`.
+`SITE_URL` is picked up from Netlify's built-in `URL` variable, so the sitemap
+and canonical links point at the real deploy.
 
-Optional environment variables, all read by `build.py`:
+The FlowSearch verification token, script origin and widget key are committed
+as defaults near the top of `build.py`. The widget key is a public key that
+ends up in the page HTML anyway. Environment variables override the defaults:
 
 | Variable | Purpose |
 | --- | --- |
-| `FLOWSEARCH_VERIFICATION_TOKEN` | Fills the `flowsearch-site-verification` meta tag. Defaults to `TOKEN`. |
-| `FLOWSEARCH_APP_URL` | Origin serving `widget.js` and `results.js`, e.g. `https://app.example.com`. |
-| `FLOWSEARCH_API_KEY` | The website's `fs_...` key. With `FLOWSEARCH_APP_URL`, emits the real script tags. |
+| `FLOWSEARCH_VERIFICATION_TOKEN` | Fills the `flowsearch-site-verification` meta tag. |
+| `FLOWSEARCH_APP_URL` | Origin serving `widget.js` and `results.js`. |
+| `FLOWSEARCH_API_KEY` | The website's `fs_...` widget key. Set both this and the origin to empty to emit placeholder comments instead of script tags. |
 | `SITE_URL` | Override the canonical origin. |
-
-Alternatively edit the placeholders by hand in `build.py` (`flowsearch_head`,
-`flowsearch_widget`, `flowsearch_results`) and push.
 
 Note: a Netlify site is HTTPS, so browsers block a widget script loaded from a
 plain `http://localhost:3000`. To test the widget against a local FlowSearch app,
