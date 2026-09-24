@@ -30,7 +30,7 @@ DIST = ROOT / "dist"
 STATIC = ROOT / "static"
 
 SITE_URL = (os.environ.get("SITE_URL") or os.environ.get("URL") or "https://josis-fun-test-website.netlify.app").rstrip("/")
-FS_TOKEN = os.environ.get("FLOWSEARCH_VERIFICATION_TOKEN", "TOKEN")
+FS_TOKEN = os.environ.get("FLOWSEARCH_VERIFICATION_TOKEN", "b0a95fb2-8eed-450b-8819-4616b191d08c")
 FS_APP_URL = os.environ.get("FLOWSEARCH_APP_URL", "").rstrip("/")
 FS_API_KEY = os.environ.get("FLOWSEARCH_API_KEY", "")
 
