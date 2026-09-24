@@ -1,0 +1,79 @@
+# Kererū Kettle Co. — a FlowSearch test site
+
+A fictional Wellington tea and kettle shop, generated as plain static HTML so the
+FlowSearch crawler has something realistic to chew on. About 100 pages: products,
+services, blog posts, help articles, an FAQ, legal pages, and a handful of
+deliberately awkward pages (orphans, missing metadata, noindex).
+
+No JavaScript is needed to read any content. The only scripts are the FlowSearch
+widget and results scripts, which are left as placeholders until onboarding is done.
+
+## Build
+
+```bash
+python3 build.py        # writes ./dist (Python 3.8+, no dependencies)
+python3 -m http.server -d dist 8000   # preview at http://localhost:8000
+```
+
+The build prints the page count and the list of edge-case pages.
+
+## Deploy on Netlify
+
+`netlify.toml` already sets the build command (`python3 build.py`) and publish
+directory (`dist`). Connect the GitHub repo to a new Netlify site and it builds
+on every push. `SITE_URL` is picked up from Netlify's built-in `URL` variable,
+so the sitemap and canonical links point at the real deploy.
+
+Optional environment variables, all read by `build.py`:
+
+| Variable | Purpose |
+| --- | --- |
+| `FLOWSEARCH_VERIFICATION_TOKEN` | Fills the `flowsearch-site-verification` meta tag. Defaults to `TOKEN`. |
+| `FLOWSEARCH_APP_URL` | Origin serving `widget.js` and `results.js`, e.g. `https://app.example.com`. |
+| `FLOWSEARCH_API_KEY` | The website's `fs_...` key. With `FLOWSEARCH_APP_URL`, emits the real script tags. |
+| `SITE_URL` | Override the canonical origin. |
+
+Alternatively edit the placeholders by hand in `build.py` (`flowsearch_head`,
+`flowsearch_widget`, `flowsearch_results`) and push.
+
+Note: a Netlify site is HTTPS, so browsers block a widget script loaded from a
+plain `http://localhost:3000`. To test the widget against a local FlowSearch app,
+expose it over HTTPS (ngrok, Cloudflare tunnel) or use the deployed app.
+
+## What the site exercises
+
+- `sitemap.xml` at the root with `lastmod`, and a permissive `robots.txt`.
+- `<title>`, `<meta name="description">` and `<h1>` on nearly every page.
+- JSON-LD: `Product`, `BlogPosting`, `Service`, `Organization`, and `FAQPage` on `/faq/`.
+- Content categories the crawler recognises from URL paths: `/products/`, `/services/`, `/blog/`, `/help/`, `/about/`.
+- Shared vocabulary across sections (oolong, steep, temperature, descale, gooseneck, chai) so ranking has to work.
+- Search forms with `data-fs-search` / `data-fs-input` in the header and on the home page.
+- `/search/` with the full `results.js` markup (results template, count, query, loading, empty, error, pagination, summary).
+
+### Deliberate edge cases
+
+| Page | What is odd about it |
+| --- | --- |
+| `/products/mystery-box/` | Linked and in the sitemap, but no `<h1>`. |
+| `/blog/untitled-draft/` | Linked from the blog index, but no `<title>`, description or `<h1>`. |
+| `/help/legacy-brewing-chart/` | Orphan (sitemap only), no description, no `<h1>`. |
+| `/products/discontinued-lemon-verbena/` | Orphan: in the sitemap, linked from nowhere. |
+| `/blog/unlisted-staff-picks/` | Orphan blog post, sitemap only. |
+| `/secret-menu/` | Orphan, sitemap only. |
+| `/help/internal-notes/` | In the sitemap, unlinked, `noindex` meta tag. |
+| `/easter-egg/` | Linked from `/about/team/` but missing from the sitemap. |
+| `/search/` | `noindex`, not in the sitemap, results page for the hosted flow. |
+| `/404.html` | Netlify's custom 404. |
+
+## Layout
+
+```
+build.py            generator and HTML layout
+model.py            Page dataclass and small HTML helpers
+content/products.py teas, kettles, accessories
+content/blog.py     blog posts
+content/help_articles.py  help centre
+content/pages.py    home, about, services, FAQ, contact, search, legal, oddities
+static/style.css    copied into dist/
+netlify.toml        build settings
+```
