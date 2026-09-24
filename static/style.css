@@ -89,3 +89,6 @@ mark { background: #f6e7a8; }
   .search input { min-width: 0; flex: 1; }
   h1 { font-size: 1.6rem; }
 }
+
+/* results.js clones this template and un-hides the clones; keep the template itself hidden. */
+.results [data-fs-result] { display: none; }
